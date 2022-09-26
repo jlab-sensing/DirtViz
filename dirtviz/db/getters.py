@@ -10,6 +10,8 @@ from sqlalchemy import select, func
 
 from .tables import TEROSData, PowerData
 
+import datetime
+
 def get_power_data(sess, cell_id, resample="hour"):
     """Gets the power data for a given cell. Can be directly passed to
     bokeh.ColumnDataSource.
@@ -40,13 +42,16 @@ def get_power_data(sess, cell_id, resample="hour"):
         'p': [],
     }
 
+    current_time = datetime.datetime.today()
+    one_day_ago = current_time - datetime.timedelta(days = 45)
+
     resampled = (
         select(
             func.date_trunc(resample, PowerData.ts).label("ts"),
             func.avg(PowerData.voltage).label("voltage"),
             func.avg(PowerData.current).label("current")
         )
-        .where(PowerData.cell_id == cell_id)
+        .where(PowerData.cell_id == cell_id and PowerData.ts >= one_day_ago)
         .group_by(func.date_trunc(resample, PowerData.ts))
         .subquery()
     )
