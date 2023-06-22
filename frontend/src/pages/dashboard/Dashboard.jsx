@@ -219,12 +219,13 @@ function Dashboard() {
   }, [cellIds]);
 
   return (
+    
     <Stack
       direction="column"
       divider={<Divider orientation="horizontal" flexItem />}
       justifyContent="spaced-evently"
       sx={{ height: "100vh", boxSizing: "border-box" }}
-    >
+    ><p> hello world </p>
       <Stack
         direction="row"
         divider={<Divider orientation="vertical" flexItem />}
