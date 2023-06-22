@@ -53,6 +53,7 @@ export default function VChart(props) {
           display: true,
           text: "Current (µA)",
         },
+        suggestedMax: 200,
       },
     },
     plugins: {
