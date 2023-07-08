@@ -56,8 +56,8 @@ class PowerData(db.Model):
         adj_units = (
             db.select(
                 resampled.c.ts.label("ts"),
-                (resampled.c.voltage * 10e-9).label("voltage"),
-                (resampled.c.current * 10e-6).label("current")
+                resampled.c.voltage.label("voltage"),
+                resampled.c.current.label("current")
             )
             .subquery()
         )
@@ -104,8 +104,8 @@ class PowerData(db.Model):
         adj_units = (
             db.select(
                 resampled.c.ts.label("ts"),
-                (resampled.c.voltage * 10e-9).label("voltage"),
-                (resampled.c.current * 10e-6).label("current")
+                resampled.c.voltage.label("voltage"),
+                resampled.c.current.label("current")
             )
             .subquery()
         )
