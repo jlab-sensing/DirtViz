@@ -35,12 +35,17 @@ function Dashboard() {
   const [endDate, setEndDate] = useState(DateTime.now());
   const [dBtnDisabled, setDBtnDisabled] = useState(true);
   const [cellData, setCellData] = useState({});
-  const [selectedCell, setSelectedCell] = useState(0);
+  //const [selectedCell, setSelectedCell] = useState(0);
+  const [selectedCells, setSelectedCells] = useState([]);
+  const updateSelectedCells = (event) => {
+    setSelectedCells(event.target.value); // Update selected cell IDs when the selection changes
+  };
+  //
   const [cellIds, setCellIds] = useState({
     data: [],
   });
   const [tempChartData, setTempChartData] = useState({
-    label: [],
+    labels: [],
     datasets: [
       {
         data: [],
@@ -50,7 +55,7 @@ function Dashboard() {
     ],
   });
   const [vChartData, setVChartData] = useState({
-    label: [],
+    labels: [],
     datasets: [
       {
         data: [],
@@ -67,7 +72,7 @@ function Dashboard() {
     ],
   });
   const [pwrChartData, setPwrChartData] = useState({
-    label: [],
+    labels: [],
     datasets: [
       {
         label: "Voltage",
@@ -78,7 +83,7 @@ function Dashboard() {
     ],
   });
   const [vwcChartData, setVWCChartData] = useState({
-    label: [],
+    labels: [],
     datasets: [
       {
         label: "VWC",
@@ -97,6 +102,93 @@ function Dashboard() {
     ],
   });
 
+  //create combine charts
+  const [combinedVChartData, setCombinedVChartData] = useState({
+    // Initialize the chart data with empty datasets for both groups
+    datasets: [
+      {
+        label: "Voltage (v)",
+        data: [],
+        borderColor: "lightgreen",
+        borderWidth: 2,
+        fill: false,
+        yAxisID: "vAxis",
+        radius: 2,
+        pointRadius: 2,
+      },
+      {
+        label: "Current (µA)",
+        data: [],
+        borderColor: "purple",
+        borderWidth: 2,
+        fill: false,
+        yAxisID: "cAxis",
+        radius: 2,
+        pointRadius: 2,
+      },
+    ],
+  });
+
+  const [combinedTempChartData, setCombinedTempChartData] = useState({
+    // Initialize the chart data with empty datasets for both groups
+    labels: [],
+    datasets: [
+      {
+        label: "Temperature",
+        data: [],
+        borderColor: "red",
+        borderWidth: 2,
+        fill: false,
+        radius: 2,
+        pointRadius: 2,
+      },
+    ],
+  });
+
+  const [combinedPwrChartData, setCombinedPwrChartData] = useState({
+    // Initialize the chart data with empty datasets for both groups
+    labels: [],
+    datasets: [
+      {
+        label: "Power (µV)",
+        data: [],
+        borderColor: "orange",
+        borderWidth: 2,
+        fill: false,
+        radius: 2,
+        pointRadius: 2,
+      },
+    ],
+  });
+
+  const [combinedVwcChartData, setCombinedVwcChartData] = useState({
+    // Initialize the chart data with empty datasets for both groups
+    labels: [],
+    datasets: [
+      {
+        label: "Volumetric Water Content (VWC)",
+        data: [],
+        borderColor: "blue",
+        borderWidth: 2,
+        fill: false,
+        yAxisID: "vwcAxis",
+        radius: 2,
+        pointRadius: 2,
+      },
+      {
+        label: "Electrical Conductivity (µS/cm)",
+        data: [],
+        borderColor: "black",
+        borderWidth: 2,
+        fill: false,
+        yAxisID: "ecAxis",
+        radius: 2,
+        pointRadius: 2,
+      },
+    ],
+  });
+
+
   const updateCharts = (sC, sD, eD) => {
     // getCellData(sC, sD, eD).then((response) => {
     //   const cellDataObj = response.data;
@@ -109,6 +201,8 @@ function Dashboard() {
       powerDataObj.timestamp = powerDataObj.timestamp.map((dateTime) =>
         DateTime.fromHTTP(dateTime)
       );
+
+      //update the first group of data
       setVChartData({
         labels: powerDataObj.timestamp,
         datasets: [
@@ -134,6 +228,22 @@ function Dashboard() {
           },
         ],
       });
+      //update the second group of data
+      setCombinedVChartData({
+        labels: powerDataObj.timestamp,
+        datasets: [
+          {
+            ...vChartData.datasets[0], // Keep the previous settings for the first dataset
+            data: powerDataObj.v.map((value, index) => value + vChartData.datasets[0].data[index]),
+          },
+          {
+            ...vChartData.datasets[1], // Keep the previous settings for the second dataset
+            data: powerDataObj.i.map((value, index) => value + vChartData.datasets[1].data[index]),
+          },
+        ],
+      });
+      
+      //first
       setPwrChartData({
         labels: powerDataObj.timestamp,
         datasets: [
@@ -148,12 +258,25 @@ function Dashboard() {
           },
         ],
       });
+      // Update the second group of data (combinedPwrChartData) and combine it with the first group (pwrChartData)
+      setCombinedPwrChartData({
+        labels: powerDataObj.timestamp,
+        datasets: [
+          {
+            ...pwrChartData.datasets[0], // Keep the previous settings for the first dataset
+            data: powerDataObj.p.map((value, index) => value + pwrChartData.datasets[0].data[index]),
+          },
+        ],
+      });
     });
+
+    
     getTerosData(sC, sD, eD).then((response) => {
       const terosDataObj = response.data;
       terosDataObj.timestamp = terosDataObj.timestamp.map((dateTime) =>
         DateTime.fromHTTP(dateTime)
       );
+      //first
       setVWCChartData({
         labels: terosDataObj.timestamp,
         datasets: [
@@ -179,6 +302,23 @@ function Dashboard() {
           },
         ],
       });
+
+      // Update the second group of data (combinedVWCChartData) and combine it with the first group (vwcChartData)
+      setCombinedVwcChartData({
+        labels: terosDataObj.timestamp,
+        datasets: [
+          {
+            ...vwcChartData.datasets[0], // Keep the previous settings for the first dataset
+            data: terosDataObj.vwc.map((value, index) => value + vwcChartData.datasets[0].data[index]),
+          },
+          {
+            ...vwcChartData.datasets[1], // Keep the previous settings for the second dataset
+            data: terosDataObj.ec.map((value, index) => value + vwcChartData.datasets[1].data[index]),
+          },
+        ],
+      });
+
+      //first
       setTempChartData({
         labels: terosDataObj.timestamp,
         datasets: [
@@ -193,12 +333,22 @@ function Dashboard() {
           },
         ],
       });
+      // Update the second group of data (combinedTempChartData) and combine it with the first group (tempChartData)
+      setCombinedTempChartData({
+        labels: terosDataObj.timestamp,
+        datasets: [
+          {
+            ...tempChartData.datasets[0], // Keep the previous settings for the first dataset
+            data: terosDataObj.temp.map((value, index) => value + tempChartData.datasets[0].data[index]),
+          },
+        ],
+      });
     });
   };
 
   useEffect(() => {
-    updateCharts(selectedCell, startDate, endDate);
-  }, [selectedCell]);
+    updateCharts(selectedCells, startDate, endDate);
+  }, [selectedCells]);
 
   useEffect(() => {
     setDBtnDisabled(false);
@@ -211,10 +361,15 @@ function Dashboard() {
       });
     });
   }, []);
+
+  // useEffect(() => {
+  //   updateCharts(selectedCells, startDate, endDate);
+  // }, [selectedCells, startDate, endDate]);
+
   useEffect(() => {
     if (cellIds.data[0]) {
       updateCharts(cellIds.data[0].id);
-      setSelectedCell(parseInt(cellIds.data[0].id));
+      setSelectedCells(parseInt(cellIds.data[0].id));
     }
   }, [cellIds]);
 
@@ -239,12 +394,18 @@ function Dashboard() {
           <Select
             labelId="cell-select-label"
             id="cell-select"
-            value={selectedCell}
+            //revised
+            multiple // Set the multiple prop to enable multiple selection
+            value={selectedCells} // Use selectedCells array instead of selectedCell
             label="Cell"
-            defaultValue={selectedCell}
-            onChange={(e) => {
-              setSelectedCell(e.target.value);
-            }}
+            onChange={updateSelectedCells}
+            //
+            // value={selectedCell}
+            // label="Cell"
+            // defaultValue={selectedCell}
+            // onChange={(e) => {
+            //   setSelectedCell(e.target.value);
+            // }}
           >
             {cellIds.data.map(({ id, location, name }) => {
               return (
@@ -278,22 +439,23 @@ function Dashboard() {
       </Stack>
       <Grid
         container
+        spacing = {3}
         sx={{ height: "100%", width: "100%", p: 2 }}
         alignItems="center"
         justifyContent="space-evenly"
         columns={{ xs: 4, sm: 8, md: 12 }}
-      >
+        >
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <VChart data={vChartData} />
+          <VChart data={combinedVChartData} /> {/* Replace with your desired chart */}
         </Grid>
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <PwrChart data={pwrChartData} />
+          <PwrChart data={combinedPwrChartData} />
         </Grid>
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <VwcChart data={vwcChartData} />
+          <VwcChart data={combinedVwcChartData} />
         </Grid>
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <TempChart data={tempChartData} />
+          <TempChart data={combinedTempChartData} />
         </Grid>
       </Grid>
     </Stack>

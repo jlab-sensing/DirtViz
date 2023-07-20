@@ -1,28 +1,35 @@
-import { React } from "react";
+import { React, useRef, useEffect } from "react";
 import { Line } from "react-chartjs-2";
 import "chartjs-adapter-luxon";
 import { zoomOptions } from "../defaultChartOptions";
 import PropTypes from "prop-types";
+import Chart from "chart.js/auto";
+import zoomPlugin from "chartjs-plugin-zoom";
+import { Button } from "@mui/material";
+
+Chart.register(zoomPlugin);
 
 export default function PwrChart(props) {
   const data = props.data;
+  const chartRef = useRef();
 
-  //add
-  // const chartRef = useRef(null);
-  // let chartInstance = null;
+  //zoom
+  const handleResetZoom = () => {
+    console.log("reset zoom");
+    if (chartRef.current) {
+      chartRef.current.resetZoom();
+    }
+  };
 
-  // const handleResetZoom = () => {
-  //   if (chartInstance) {
-  //     chartInstance.resetZoom();
-  //   }
-  // };
-
-  // useEffect(() => {
-  //   if (chartRef.current) {
-  //     chartInstance = chartRef.current.chartInstance;
-  //   }
-  // }, []);
-  //add
+  // //zoom
+  const handleToggleZoom = () => {
+    console.log("toggle zoom");
+    if (chartRef.current) {
+      const wheelEnabled = chartRef.current.options.plugins.zoom.zoom.wheel.enabled;
+      chartRef.current.options.plugins.zoom.zoom.wheel.enabled = !wheelEnabled;
+      chartRef.current.update();
+    }
+  };
 
   const chartOptions = {
     maintainAspectRatio: false,
@@ -57,61 +64,45 @@ export default function PwrChart(props) {
         },
       },
     },
+    interaction: {
+      intersect: false,
+      mode: 'index',
+    },
     plugins: {
       zoom: zoomOptions,
       title: {
-       display: true,
-       position: 'bottom',
-       text: "click to zoom",
-       text: (ctx) => '<Click to Zoom>  Zoom: ' + zoomStatus() + ', Pan: ' + panStatus()
-      }
-    },
-    onClick(e) {
-      const chart = e.chart;
-      chart.options.plugins.zoom.zoom.wheel.enabled = !chart.options.plugins.zoom.zoom.wheel.enabled;
-      chart.options.plugins.zoom.zoom.pinch.enabled = !chart.options.plugins.zoom.zoom.pinch.enabled;
-      chart.update();
+        display: true,
+        text: (ctx) => {
+          //const {axis = 'xy', intersect, mode} = ctx.chart.options.interaction;
+          return 'Zoom: ' + zoomStatus()
+        }
+      },
     }
-};
+  }
 
-  const panStatus = () => zoomOptions.pan.enabled ? 'enabled' : 'disabled';
+  const actions = [
+    {
+      name: 'Mode: index',
+      handler(chart) {
+        chart.options.interaction.axis = 'xy';
+        chart.options.interaction.mode = 'index';
+        chart.update();
+      }
+    }
+  ];
+  // </block:actions>
+
   const zoomStatus = () => zoomOptions.zoom.wheel.enabled ? 'enabled' : 'disabled';
-  
 
-  // return (
-  //   <div>
-  //     <Line data={data} options={chartOptions} />
-  //     <button onClick={handleResetZoom}>Reset Zoom</button>
-  //   </div>
-  // );
-
-  return <Line data={data} options={chartOptions} />;
-
-
-  //return //(
-    //<div>
-      //<Line data={data} options={chartOptions} />
-
-    //</div>
-  //);
+  return (
+    <>
+      <Line ref={chartRef} data={data} options={chartOptions}/>
+      <Button onClick={handleResetZoom} variant="outlined" size="small">Reset Zoom</Button>
+      <Button onClick={handleToggleZoom} variant="outlined" size="small">Toggle Zoom</Button>
+    </>
+  );
 }
-    //<button onClick={handleResetZoom}>Reset Zoom</button>
-  // return (
-  //   <div>
-  //   <line data=={data} />
-  //   <button/>
-  //   </div>
-  //   )
-
-
-//   Not this:
-// return()
-// <div>
-// </div>
-// <line data=={data} />
-// <button/>
-// )
 
 PwrChart.propTypes = {
   data: PropTypes.object,
-};
+};  
