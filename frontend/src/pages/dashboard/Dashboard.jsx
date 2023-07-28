@@ -113,7 +113,7 @@ function Dashboard() {
         labels: powerDataObj.timestamp,
         datasets: [
           {
-            label: "Voltage (v)",
+            label: "Voltage (mV)",
             data: powerDataObj.v,
             borderColor: "lightgreen",
             borderWidth: 2,
@@ -138,7 +138,7 @@ function Dashboard() {
         labels: powerDataObj.timestamp,
         datasets: [
           {
-            label: "Power (µV)",
+            label: "Power (µW)",
             data: powerDataObj.p,
             borderColor: "orange",
             borderWidth: 2,
