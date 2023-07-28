@@ -154,6 +154,7 @@ function Dashboard() {
       terosDataObj.timestamp = terosDataObj.timestamp.map((dateTime) =>
         DateTime.fromHTTP(dateTime)
       );
+      console.log(terosDataObj);
       setVWCChartData({
         labels: terosDataObj.timestamp,
         datasets: [
@@ -201,7 +202,9 @@ function Dashboard() {
   }, [selectedCell]);
 
   useEffect(() => {
-    setDBtnDisabled(false);
+    if (Object.keys(cellData).length != 0) {
+      setDBtnDisabled(false);
+    }
   }, [setCellData]);
 
   useEffect(() => {
