@@ -13,8 +13,6 @@ import VwcChart from "../../charts/VwcChart/VwcChart";
 import TempChart from "../../charts/TempChart/TempChart";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { DateTime } from "luxon";
-import { LocalizationProvider } from "@mui/x-date-pickers";
-import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import DownloadBtn from "../../components/DownloadBtn";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
