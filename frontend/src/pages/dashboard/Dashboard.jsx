@@ -13,6 +13,8 @@ import VwcChart from "../../charts/VwcChart/VwcChart";
 import TempChart from "../../charts/TempChart/TempChart";
 import { DateTimePicker } from "@mui/x-date-pickers/DateTimePicker";
 import { DateTime } from "luxon";
+import { LocalizationProvider } from "@mui/x-date-pickers";
+import { AdapterLuxon } from "@mui/x-date-pickers/AdapterLuxon";
 import DownloadBtn from "../../components/DownloadBtn";
 import Box from "@mui/material/Box";
 import Grid from "@mui/material/Grid";
@@ -26,6 +28,7 @@ import HorizontalRuleRoundedIcon from "@mui/icons-material/HorizontalRuleRounded
 Chart.register(CategoryScale);
 Chart.register(zoomPlugin);
 
+
 function Dashboard() {
   const [startDate, setStartDate] = useState(
     DateTime.now().minus({ months: 1 })
@@ -35,312 +38,304 @@ function Dashboard() {
   const [cellData, setCellData] = useState({});
   //const [selectedCell, setSelectedCell] = useState(0);
   const [selectedCells, setSelectedCells] = useState([]);
+  const [cellColors, setCellColors] = useState({});
   const updateSelectedCells = (event) => {
     setSelectedCells(event.target.value); // Update selected cell IDs when the selection changes
   };
-  //
   const [cellIds, setCellIds] = useState({
     data: [],
   });
-  const [tempChartData, setTempChartData] = useState({
-    labels: [],
-    datasets: [
-      {
-        data: [],
-        borderColor: "black",
-        borderWidth: 2,
-      },
-    ],
-  });
-  const [vChartData, setVChartData] = useState({
-    labels: [],
-    datasets: [
-      {
-        data: [],
-        borderColor: "black",
-        borderWidth: 2,
-        yAxisID: "vAxis",
-      },
-      {
-        data: [],
-        borderColor: "black",
-        borderWidth: 2,
-        yAxisID: "cAxis",
-      },
-    ],
-  });
-  const [pwrChartData, setPwrChartData] = useState({
-    labels: [],
-    datasets: [
-      {
-        label: "Voltage",
-        data: [],
-        borderColor: "black",
-        borderWidth: 2,
-      },
-    ],
-  });
-  const [vwcChartData, setVWCChartData] = useState({
-    labels: [],
-    datasets: [
-      {
-        label: "VWC",
-        data: [],
-        borderColor: "black",
-        borderWidth: 2,
-        yAxisID: "vwcAxis",
-      },
-      {
-        label: "EC",
-        data: [],
-        borderColor: "black",
-        borderWidth: 2,
-        yAxisID: "ecAxis",
-      },
-    ],
-  });
-
+  
   //create combine charts
-  const [combinedVChartData, setCombinedVChartData] = useState({
+  const [vChartData, setVChartData] = useState({
     // Initialize the chart data with empty datasets for both groups
     datasets: [
       {
-        label: "Voltage (v)",
         data: [],
-        borderColor: "lightgreen",
-        borderWidth: 2,
-        fill: false,
-        yAxisID: "vAxis",
-        radius: 2,
-        pointRadius: 2,
       },
       {
-        label: "Current (µA)",
         data: [],
-        borderColor: "purple",
-        borderWidth: 2,
-        fill: false,
-        yAxisID: "cAxis",
-        radius: 2,
-        pointRadius: 2,
       },
     ],
   });
 
-  const [combinedTempChartData, setCombinedTempChartData] = useState({
+  const [tempChartData, setTempChartData] = useState({
     // Initialize the chart data with empty datasets for both groups
     labels: [],
     datasets: [
       {
-        label: "Temperature",
         data: [],
-        borderColor: "red",
-        borderWidth: 2,
-        fill: false,
-        radius: 2,
-        pointRadius: 2,
       },
     ],
   });
 
-  const [combinedPwrChartData, setCombinedPwrChartData] = useState({
+  const [pwrChartData, setPwrChartData] = useState({
     // Initialize the chart data with empty datasets for both groups
     labels: [],
     datasets: [
       {
-        label: "Power (µV)",
         data: [],
-        borderColor: "orange",
-        borderWidth: 2,
-        fill: false,
-        radius: 2,
-        pointRadius: 2,
       },
     ],
   });
 
-  const [combinedVwcChartData, setCombinedVwcChartData] = useState({
+  const [vwcChartData, setVwcChartData] = useState({
     // Initialize the chart data with empty datasets for both groups
     labels: [],
     datasets: [
       {
-        label: "Volumetric Water Content (VWC)",
         data: [],
-        borderColor: "blue",
-        borderWidth: 2,
-        fill: false,
-        yAxisID: "vwcAxis",
-        radius: 2,
-        pointRadius: 2,
       },
       {
-        label: "Electrical Conductivity (µS/cm)",
         data: [],
-        borderColor: "black",
-        borderWidth: 2,
-        fill: false,
-        yAxisID: "ecAxis",
-        radius: 2,
-        pointRadius: 2,
       },
     ],
   });
 
-
-  const updateCharts = (sC, sD, eD) => {
-    // getCellData(sC, sD, eD).then((response) => {
-    //   const cellDataObj = response.data;
-    //   cellDataObj.timestamp = cellDataObj.timestamp.map((dateTime) =>
-    //     DateTime.fromHTTP(dateTime)
-    //   );
-    // setCellData(cellDataObj);
-    getPowerData(sC, sD, eD).then((response) => {
-      const powerDataObj = response.data;
-      powerDataObj.timestamp = powerDataObj.timestamp.map((dateTime) =>
-        DateTime.fromHTTP(dateTime)
+  const updateCharts = (sCs, sD, eD) => {
+    const fetchDataPromises = [];
+    const cellChartData = []; // To store the chart data for each cell
+  
+    // Loop through selected cell IDs and fetch data for each cell
+    for (const cellId of sCs) {
+      // Fetch data for Power Chart
+      fetchDataPromises.push(
+        getPowerData(cellId, sD, eD).then((response) => {
+          const powerDataObj = response.data;
+          powerDataObj.timestamp = powerDataObj.timestamp.map((dateTime) =>
+            DateTime.fromHTTP(dateTime)
+          );
+  
+          // Create an object with cellId, type, and data
+          const cellPowerData = {
+            cellid: cellId,
+            type: "power",
+            data: powerDataObj,
+            //borderColor: cellColors[cellId],
+          };
+          cellChartData.push(cellPowerData); // Push the data for this cell to the array
+        })
       );
-
-      //update the first group of data
-      setVChartData({
-        labels: powerDataObj.timestamp,
-        datasets: [
-          {
-            label: "Voltage (v)",
-            data: powerDataObj.v,
-            borderColor: "lightgreen",
-            borderWidth: 2,
-            fill: false,
-            yAxisID: "vAxis",
-            radius: 2,
-            pointRadius: 2,
-          },
-          {
-            label: "Current (µA)",
-            data: powerDataObj.i,
-            borderColor: "purple",
-            borderWidth: 2,
-            fill: false,
-            yAxisID: "cAxis",
-            radius: 2,
-            pointRadius: 2,
-          },
-        ],
-      });
-      //update the second group of data
-      setCombinedVChartData({
-        labels: powerDataObj.timestamp,
-        datasets: [
-          {
-            ...vChartData.datasets[0], // Keep the previous settings for the first dataset
-            data: powerDataObj.v.map((value, index) => value + vChartData.datasets[0].data[index]),
-          },
-          {
-            ...vChartData.datasets[1], // Keep the previous settings for the second dataset
-            data: powerDataObj.i.map((value, index) => value + vChartData.datasets[1].data[index]),
-          },
-        ],
-      });
-      
-      //first
-      setPwrChartData({
-        labels: powerDataObj.timestamp,
-        datasets: [
-          {
-            label: "Power (µV)",
-            data: powerDataObj.p,
-            borderColor: "orange",
-            borderWidth: 2,
-            fill: false,
-            radius: 2,
-            pointRadius: 2,
-          },
-        ],
-      });
-      // Update the second group of data (combinedPwrChartData) and combine it with the first group (pwrChartData)
-      setCombinedPwrChartData({
-        labels: powerDataObj.timestamp,
-        datasets: [
-          {
-            ...pwrChartData.datasets[0], // Keep the previous settings for the first dataset
-            data: powerDataObj.p.map((value, index) => value + pwrChartData.datasets[0].data[index]),
-          },
-        ],
-      });
-    });
-
-    
-    getTerosData(sC, sD, eD).then((response) => {
-      const terosDataObj = response.data;
-      terosDataObj.timestamp = terosDataObj.timestamp.map((dateTime) =>
-        DateTime.fromHTTP(dateTime)
+  
+      // Fetch data for VWC Chart
+      fetchDataPromises.push(
+        getTerosData(cellId, sD, eD).then((response) => {
+          const terosDataObj = response.data;
+          terosDataObj.timestamp = terosDataObj.timestamp.map((dateTime) =>
+            DateTime.fromHTTP(dateTime)
+          );
+  
+          // Create an object with cellId, type, and data
+          const cellTerosData = {
+            cellid: cellId,
+            type: "teros",
+            data: terosDataObj,
+            //borderColor: cellColors[cellId],
+          };
+          cellChartData.push(cellTerosData); // Push the data for this cell to the array
+        })
       );
-      //first
-      setVWCChartData({
-        labels: terosDataObj.timestamp,
-        datasets: [
-          {
-            label: "Volumetric Water Content (VWC)",
-            data: terosDataObj.vwc,
-            borderColor: "blue",
-            borderWidth: 2,
-            fill: false,
-            yAxisID: "vwcAxis",
-            radius: 2,
-            pointRadius: 2,
-          },
-          {
-            label: "Electrical Conductivity (µS/cm)",
-            data: terosDataObj.ec,
-            borderColor: "black",
-            borderWidth: 2,
-            fill: false,
-            yAxisID: "ecAxis",
-            radius: 2,
-            pointRadius: 2,
-          },
-        ],
-      });
+    }
+  
+    // Use Promise.all to handle multiple data fetching asynchronously
+    Promise.all(fetchDataPromises).then(() => {
+      // Initialize the combined chart data with empty datasets
+      const newVChartData = {
+        ...vChartData,
+        datasets: [],
+        data: [],
+      };
+      const newTempChartData = {
+        ...tempChartData,
+        datasets: [],
+          data: [],
+      };
+      const newPwrChartData = {
+        ...pwrChartData,
+        datasets: [],
+          data: [],
+      };
+      const newVwcChartData = {
+        ...vwcChartData,
+        datasets: [],
+          data: [],
+      };
 
-      // Update the second group of data (combinedVWCChartData) and combine it with the first group (vwcChartData)
-      setCombinedVwcChartData({
-        labels: terosDataObj.timestamp,
-        datasets: [
-          {
-            ...vwcChartData.datasets[0], // Keep the previous settings for the first dataset
-            data: terosDataObj.vwc.map((value, index) => value + vwcChartData.datasets[0].data[index]),
-          },
-          {
-            ...vwcChartData.datasets[1], // Keep the previous settings for the second dataset
-            data: terosDataObj.ec.map((value, index) => value + vwcChartData.datasets[1].data[index]),
-          },
-        ],
-      });
+      // Access data for each cell and update the combined charts accordingly
+      for (const cellData of cellChartData) {
+        const cellId = cellData.cellid;
+        const type = cellData.type;
+        const data = cellData.data;
 
-      //first
-      setTempChartData({
-        labels: terosDataObj.timestamp,
-        datasets: [
-          {
-            label: "Temperature",
-            data: terosDataObj.temp,
-            borderColor: "red",
-            borderWidth: 2,
-            fill: false,
-            radius: 2,
-            pointRadius: 2,
-          },
-        ],
-      });
-      // Update the second group of data (combinedTempChartData) and combine it with the first group (tempChartData)
-      setCombinedTempChartData({
-        labels: terosDataObj.timestamp,
-        datasets: [
-          {
-            ...tempChartData.datasets[0], // Keep the previous settings for the first dataset
-            data: terosDataObj.temp.map((value, index) => value + tempChartData.datasets[0].data[index]),
-          },
-        ],
-      });
+        
+
+        if (type === "power") {
+          // Update the combined Power Chart data for the specific cell
+          //vchart data
+          newVChartData.labels = data.timestamp;
+          if (cellId == 1){
+            newVChartData.datasets.push(
+              {
+                label: "Cell " + cellId + " Voltage (v)", 
+                data: data.v,
+                borderColor: "lightgreen",
+                borderWidth: 2,
+                fill: false,
+                yAxisID: "vAxis",
+                radius: 2,
+                pointRadius: 1,
+              },
+              {
+                label: "Cell " + cellId +" Current (µA)",
+                data: data.i,
+                borderColor: "purple",
+                borderWidth: 2,
+                fill: false,
+                yAxisID: "cAxis",
+                radius: 2,
+                pointRadius: 1,
+              }
+            );
+  
+            //power data
+            newPwrChartData.labels = data.timestamp;
+            newPwrChartData.datasets.push(
+              {
+                label: "Cell " + cellId + " Power (µV)", 
+                data: data.p,
+                borderColor: "orange",
+                borderWidth: 2,
+                fill: false,
+                radius: 2,
+                pointRadius: 1,
+              },
+            );
+          }else if (cellId == 2) {
+            newVChartData.datasets.push(
+              {
+                label: "Cell " + cellId + " Voltage (v)", 
+                data: data.v,
+                borderColor: "green",//change to another in same shade
+                borderWidth: 2,
+                fill: false,
+                yAxisID: "vAxis",
+                radius: 2,
+                pointRadius: 1,
+              },
+              {
+                label: "Cell " + cellId +" Current (µA)",
+                data: data.i,
+                borderColor: "gold",//change to another in same shade
+                borderWidth: 2,
+                fill: false,
+                yAxisID: "cAxis",
+                radius: 2,
+                pointRadius: 1,
+              }
+            );
+  
+            //power data
+            newPwrChartData.labels = data.timestamp;
+            newPwrChartData.datasets.push(
+              {
+                label: "Cell " + cellId + " Power (µV)", 
+                data: data.p,
+                borderColor: "yellow",//change to another in same shade
+                borderWidth: 2,
+                fill: false,
+                radius: 2,
+                pointRadius: 1,
+              },
+            );
+          }
+          
+        } else if (type === "teros") {
+          //Update the combined VWC Chart data for the specific cell
+          if (cellId == 1) {
+            newVwcChartData.labels = data.timestamp;
+          newVwcChartData.datasets.push(
+            {
+              label: "Cell " + cellId + " Volumetric Water Content (VWC)", 
+              data: data.vwc,
+              borderColor: "blue",
+              borderWidth: 2,
+              fill: false,
+              yAxisID: "vwcAxis",
+              radius: 2,
+              pointRadius: 1,
+            },
+            {
+              label: "Cell " + cellId +" Electrical Conductivity (µS/cm)",
+              data: data.ec,
+              borderColor: "black",
+              borderWidth: 2,
+              fill: false,
+              yAxisID: "ecAxis",
+              radius: 2,
+              pointRadius: 1,
+            }
+          );
+
+          // Update the combined Temperature Chart data for the specific cell
+          newTempChartData.labels = data.timestamp;
+          newTempChartData.datasets.push(
+            {
+              label: "Cell " + cellId + " Temperature", 
+              data: data.temp,
+              borderColor: "red",
+              borderWidth: 2,
+              fill: false,
+              radius: 2,
+              pointRadius: 1,
+            },
+          );
+        } else if (cellId == 2){
+          newVwcChartData.labels = data.timestamp;
+          newVwcChartData.datasets.push(
+            {
+              label: "Cell " + cellId + " Volumetric Water Content (VWC)", 
+              data: data.vwc,
+              borderColor: "cyan", //change to another in same shade
+              borderWidth: 2,
+              fill: false,
+              yAxisID: "vwcAxis",
+              radius: 2,
+              pointRadius: 1,
+            },
+            {
+              label: "Cell " + cellId +" Electrical Conductivity (µS/cm)",
+              data: data.ec,
+              borderColor: "brown", //change to another in same shade
+              borderWidth: 2,
+              fill: false,
+              yAxisID: "ecAxis",
+              radius: 2,
+              pointRadius: 1,
+            }
+          );
+
+          // Update the combined Temperature Chart data for the specific cell
+          newTempChartData.labels = data.timestamp;
+          newTempChartData.datasets.push(
+            {
+              label: "Cell " + cellId + " Temperature", 
+              data: data.temp,
+              borderColor: "pink", //change to another in same shade
+              borderWidth: 2,
+              fill: false,
+              radius: 2,
+              pointRadius: 1,
+            },
+          );
+        }
+        }
+      }
+
+      // Update the combined chart states
+      setVChartData(newVChartData);
+      setTempChartData(newTempChartData);
+      setPwrChartData(newPwrChartData);
+      setVwcChartData(newVwcChartData);
     });
   };
 
@@ -360,16 +355,19 @@ function Dashboard() {
     });
   }, []);
 
-  // useEffect(() => {
-  //   updateCharts(selectedCells, startDate, endDate);
-  // }, [selectedCells, startDate, endDate]);
+  useEffect(() => {
+    updateCharts(selectedCells, startDate, endDate);
+  }, [selectedCells, startDate, endDate]);
 
   useEffect(() => {
     if (cellIds.data[0]) {
-      updateCharts(cellIds.data[0].id);
-      setSelectedCells(parseInt(cellIds.data[0].id));
+      console.log (cellIds.data);
+      updateCharts([parseInt(cellIds.data[0].id)]);
+      //turn the list of obj into list of itergers, which is cellId
+      setSelectedCells([parseInt(cellIds.data[0].id)]);
     }
   }, [cellIds]);
+
 
   return (
     
@@ -444,20 +442,19 @@ function Dashboard() {
         columns={{ xs: 4, sm: 8, md: 12 }}
         >
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <VChart data={combinedVChartData} /> {/* Replace with your desired chart */}
+          <VChart data={vChartData} /> {/* Replace with your desired chart */}
         </Grid>
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <PwrChart data={combinedPwrChartData} />
+          <PwrChart data={pwrChartData} />
         </Grid>
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <VwcChart data={combinedVwcChartData} />
+          <VwcChart data={vwcChartData} />
         </Grid>
         <Grid item sx={{ height: "50%" }} xs={4} sm={4} md={5.5} p={0.25}>
-          <TempChart data={combinedTempChartData} />
+          <TempChart data={tempChartData} />
         </Grid>
       </Grid>
     </Stack>
   );
-}
-
+          }
 export default Dashboard;

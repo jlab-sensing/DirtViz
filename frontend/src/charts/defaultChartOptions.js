@@ -36,7 +36,7 @@ const panStatus = () => zoomOptions.pan.enabled ? 'enabled' : 'disabled';
 const zoomStatus = () => zoomOptions.zoom.drag.enabled ? 'enabled' : 'disabled';
 
 
-const drawVerticalLine = (chartInstance) => {
+export const drawVerticalLine = (chartInstance) => {
   const { chart } = chartInstance;
   const { ctx, chartArea } = chart;
 
