@@ -40,6 +40,7 @@ export default function VwcChart({ data, stream }) {
           display: true,
           text: 'EC (µS/cm)',
         },
+        min: 0,
       },
       vwcAxis: {
         type: 'linear',
