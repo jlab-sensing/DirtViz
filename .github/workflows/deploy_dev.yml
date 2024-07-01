@@ -157,7 +157,7 @@ jobs:
     environment: development
     env:
       AWS_DEFAULT_REGION: us-west-2
-      AWS_ECR_REPOSITORY_NAME: dev-dirtviz-ecr
+      AWS_ECR_REPOSITORY_NAME: dev-dirtviz-worker-ecr
       AWS_ECS_SERVICE_NAME: dev-dirtviz-worker-service
       AWS_ECS_CLUSTER_NAME: dev-dirtviz-cluster
 
