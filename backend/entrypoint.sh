@@ -9,7 +9,7 @@ do
             flask --app backend.wsgi --debug run -h 0.0.0.0 -p 8000;;
         p) 
             echo "Running Gunicorn"
-            gunicorn --worker-class gevent -c ./backend/gunicorn.conf.py -b :8000 backend.wsgi:handler;;
+            gunicorn -c ./backend/gunicorn.conf.py backend.wsgi:handler;;
         w) 
             case "$OPTARG" in
                 dev)
