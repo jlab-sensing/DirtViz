@@ -216,6 +216,7 @@ RUN chown -R app:app $APP_HOME
 USER app
 WORKDIR /home/app/
 EXPOSE 8000
-ENTRYPOINT ["/app/backend/entrypoint.sh", "-w", "prod"]
+
+ENTRYPOINT ["./backend/entrypoint.sh", "-w", "prod"]
 
 
