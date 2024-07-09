@@ -49,7 +49,6 @@ def authenticate(f):
 
     return wrapper
 
-
 def handle_login(user: User):
     access_token = jwt.encode(
         {
