@@ -66,30 +66,53 @@ def create_app(debug: bool = False) -> Flask:
     # https://rusty-celery.github.io/best-practices/index.html
     # Celery Setup
     # https://github.com/jangia/celery_ecs_example
-
-    app.config.from_mapping(
-        CELERY=dict(
-            broker_url=os.getenv("CELERY_BROKER_URL"),
-            result_backend=os.getenv("CELERY_RESULT_BACKEND"),
-            task_ignore_result=True,
-            broker_transport_options={
-                "region": os.getenv("AWS_DEFAULT_REGION"),
-                "visibility_timeout": timedelta(minutes=15).total_seconds(),
-                "predefined_queues": {
-                    "celery": {  ## the name of the SQS queue
-                        "url": os.getenv("AWS_SQS_URL"),
-                        "access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
-                        "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
-                    }
+    if os.getenv("MESSAGE_BROKER") == "aws_sqs":
+        app.config.from_mapping(
+            CELERY=dict(
+                broker_url="sqs://",
+                task_ignore_result=True,
+                broker_transport_options={
+                    "region": os.getenv("AWS_DEFAULT_REGION"),
+                    "visibility_timeout": timedelta(minutes=15).total_seconds(),
+                    "predefined_queues": {
+                        "celery": {  ## the name of the SQS queue
+                            "url": os.getenv("AWS_SQS_URL"),
+                            "access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
+                            "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+                        }
+                    },
                 },
-            },
-            task_create_missing_queues=False,
-            task_ack_late=True,
-            task_reject_on_worker_lost=True,
-            worker_prefetch_multipler=1,
-            broker_connection_retry_on_startup=True,
-        ),
-    )
+                task_create_missing_queues=False,
+                task_ack_late=True,
+                task_reject_on_worker_lost=True,
+                worker_prefetch_multipler=1,
+                broker_connection_retry_on_startup=True,
+            ),
+        )
+    elif os.getenv("MESSAGE_BROKER") == "redis":
+        app.config.from_mapping(
+                CELERY=dict(
+                    broker_url=os.getenv("CELERY_BROKER_URL"),
+                    result_backend=os.getenv("CELERY_RESULT_BACKEND"),
+                    task_ignore_result=True,
+                    broker_transport_options={
+                        "region": os.getenv("AWS_DEFAULT_REGION"),
+                        "visibility_timeout": timedelta(minutes=15).total_seconds(),
+                        "predefined_queues": {
+                            "celery": {  ## the name of the SQS queue
+                                "url": os.getenv("AWS_SQS_URL"),
+                                "access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
+                                "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+                            }
+                        },
+                    },
+                    task_create_missing_queues=False,
+                    task_ack_late=True,
+                    task_reject_on_worker_lost=True,
+                    worker_prefetch_multipler=1,
+                    broker_connection_retry_on_startup=True,
+                ),
+            )
     app.config.from_prefixed_env()
     celery_init_app(app)
 
