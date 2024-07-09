@@ -83,6 +83,7 @@ def create_app(debug: bool = False) -> Flask:
                     }
                 },
             },
+            task_create_missing_queues=False,
             task_ack_late=True,
             task_reject_on_worker_lost=True,
             worker_prefetch_multipler=1,
