@@ -67,6 +67,7 @@ def create_app(debug: bool = False) -> Flask:
     # Celery Setup
     # https://github.com/jangia/celery_ecs_example
     if os.getenv("MESSAGE_BROKER") == "aws_sqs":
+        print("Setting up AWS SQS", flush=True)
         app.config.from_mapping(
             CELERY=dict(
                 broker_url="sqs://",
