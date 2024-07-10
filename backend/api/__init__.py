@@ -75,13 +75,13 @@ def create_app(debug: bool = False) -> Flask:
                 broker_transport_options={
                     "region": os.getenv("AWS_DEFAULT_REGION"),
                     "visibility_timeout": timedelta(minutes=15).total_seconds(),
-                    "predefined_queues": {
-                        "dirtviz-task-queue": {  ## the name of the SQS queue
-                            "url": os.getenv("AWS_SQS_URL"),
-                            "access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
-                            "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
-                        }
-                    },
+                    # "predefined_queues": {
+                    #     "celery": {  ## the name of the SQS queue
+                    #         "url": os.getenv("AWS_SQS_URL"),
+                    #         "access_key_id": os.getenv("AWS_ACCESS_KEY_ID"),
+                    #         "secret_access_key": os.getenv("AWS_SECRET_ACCESS_KEY"),
+                    #     }
+                    # },
                 },
                 task_create_missing_queues=False,
                 task_ack_late=True,
