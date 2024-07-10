@@ -137,6 +137,7 @@ jobs:
               --build-arg GOOGLE_CLIENT_SECRET="${{ secrets.GOOGLE_CLIENT_SECRET }}" \
               --build-arg CLIENT_URL="${{ secrets.CLIENT_URL }}" \
               --build-arg OAUTH_REDIRECT_URI="${{ secrets.OAUTH_REDIRECT_URI }}" \
+              --build-arg MESSAGE_BROKER="aws_sqs" \
               --target production \
               -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
