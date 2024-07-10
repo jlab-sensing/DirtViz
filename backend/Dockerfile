@@ -169,6 +169,8 @@ ARG CLIENT_URL
 # -- Message Broker vars -- #
 ARG CELERY_BROKER_URL
 ARG CELERY_RESULT_BACKEND
+ARG AWS_SQS_URL
+ARG MESSAGE_BROKER
 
 # -- env -- #
 
@@ -189,8 +191,18 @@ ENV GOOGLE_CLIENT_ID $GOOGLE_CLIENT_ID
 ENV GOOGLE_CLIENT_SECRET $GOOGLE_CLIENT_SECRET
 ENV CLIENT_URL $CLIENT_URL
 ENV OAUTH_REDIRECT_URI $OAUTH_REDIRECT_URI
+
 ENV CELERY_BROKER_URL $CELERY_BROKER_URL
-ARG CELERY_RESULT_BACKEND $CELERY_RESULT_BACKEND
+ENV CELERY_RESULT_BACKEND $CELERY_RESULT_BACKEND
+ENV AWS_SQS_URL $AWS_SQS_URL
+ENV MESSAGE_BROKER $MESSAGE_BROKER
+
+
+# default tries to process task before quiting (warm shutdown)
+# instead terminate instantly so when AWS kills the worker
+# the task is put back into queue
+# https://github.com/sayanarijit/remap-sigterm
+ENV REMAP_SIGTERM SIGQUIT
 
 # create the appropriate directories
 ENV HOME=/home/app
