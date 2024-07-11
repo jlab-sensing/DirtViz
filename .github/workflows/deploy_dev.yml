@@ -138,9 +138,9 @@ jobs:
               --build-arg CLIENT_URL="${{ secrets.CLIENT_URL }}" \
               --build-arg OAUTH_REDIRECT_URI="${{ secrets.OAUTH_REDIRECT_URI }}" \
               --build-arg AWS_SQS_URL="${{ secrets.AWS_SQS_URL }}" \
-              --build-arg MESSAGE_BROKER="aws_sqs" \
               --build-arg CELERY_RESULT_BACKEND_URL="${{ secrets.CELERY_RESULT_BACKEND_URL }}" \
               --build-arg CELERY_RESULT_BACKEND_PORT="${{ secrets.CELERY_RESULT_BACKEND_PORT }}" \   
+              --build-arg MESSAGE_BROKER="aws_sqs" \
               --target production \
               -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
@@ -219,8 +219,9 @@ jobs:
               --build-arg CLIENT_URL="${{ secrets.CLIENT_URL }}" \
               --build-arg OAUTH_REDIRECT_URI="${{ secrets.OAUTH_REDIRECT_URI }}" \
               --build-arg AWS_SQS_URL="${{ secrets.AWS_SQS_URL }}" \
-              --build-arg MESSAGE_BROKER="aws_sqs" \
+              --build-arg CELERY_RESULT_BACKEND_URL="${{ secrets.CELERY_RESULT_BACKEND_URL }}" \
               --build-arg CELERY_RESULT_BACKEND_PORT="${{ secrets.CELERY_RESULT_BACKEND_PORT }}" \  
+              --build-arg MESSAGE_BROKER="aws_sqs" \
               --target prodworker \
               -t $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG .
           docker push $ECR_REGISTRY/$ECR_REPOSITORY:$IMAGE_TAG
