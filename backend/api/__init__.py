@@ -72,7 +72,7 @@ def create_app(debug: bool = False) -> Flask:
             CELERY=dict(
                 broker_url="sqs://",
                 task_ignore_result=True,
-                task_default_queue = "dirtviz-task-queue"
+                task_default_queue = "dirtviz-task-queue",
                 broker_transport_options={
                     "region": os.getenv("AWS_DEFAULT_REGION"),
                     "visibility_timeout": timedelta(minutes=15).total_seconds(),
