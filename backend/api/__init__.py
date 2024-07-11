@@ -71,7 +71,7 @@ def create_app(debug: bool = False) -> Flask:
         app.config.from_mapping(
             CELERY=dict(
                 broker_url="sqs://",
-                result_backend=os.getenv("CELERY_RESULT_BACKEND"),
+                result_backend=f"redis://{os.getenv("CELERY_RESULT_BACKEND")}/0",
                 task_ignore_result=True,
                 task_default_queue = "dirtviz-task-queue",
                 broker_transport_options={
