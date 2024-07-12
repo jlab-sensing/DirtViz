@@ -138,7 +138,7 @@ jobs:
               --build-arg CLIENT_URL="${{ secrets.CLIENT_URL }}" \
               --build-arg OAUTH_REDIRECT_URI="${{ secrets.OAUTH_REDIRECT_URI }}" \
               --build-arg CELERY_BROKER_URL="${{ secrets.CELERY_BROKER_URL }}" \
-              --build-arg `="${{ secrets.CELERY_RESULT_BACKEND }}" \
+              --build-arg CELERY_RESULT_BACKEND="${{ secrets.CELERY_RESULT_BACKEND }}" \
               --build-arg AWS_SQS_URL="${{ secrets.AWS_SQS_URL }}" \
               --build-arg MESSAGE_BROKER="redis" \
               --target production \
@@ -148,7 +148,7 @@ jobs:
 
       - name: Fill in the new image ID in the Amazon ECS task definition
         id: task-def
-        uses: aws-actions/amazon-ecs-render-task-definition@v`
+        uses: aws-actions/amazon-ecs-render-task-definition@v1
         with:
           task-definition: aws-task-definition.json
           container-name: ${{ env.AWS_ECR_REPOSITORY_NAME }}
