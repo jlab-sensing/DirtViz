@@ -20,12 +20,12 @@ class Device(Resource):
     device_data = postDeviceSchema.load(request.json)
     device_name = device_data["name"]
     
-    if Device.find_by_name(device_name):
-      return {'msg': f"A device with name '{device_name}'
-               already exists."}
+    # if Device.find_by_name(device_name):
+    #   return {'msg': f"A device with name '{device_name}'
+    #            already exists."}
 
-    new_device = Device(
-      name = device_name,
-      user_id = user.id,
-        )
+    # new_device = Device(
+    #   name = device_name,
+    #   user_id = user.id,
+    #     )
 

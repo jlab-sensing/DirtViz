@@ -96,6 +96,7 @@ def create_app(debug: bool = False) -> Flask:
     from .resources.session import Session_r
     from .resources.users_data import User_Data
     from .resources.status import Status
+    from .resources.device import Device
 
     from .auth.routes import auth
 
@@ -109,5 +110,6 @@ def create_app(debug: bool = False) -> Flask:
     api.add_resource(Session_r, "/session")
     api.add_resource(User_Data, "/user")
     api.add_resource(Status, "/status/<string:id>")
+    api.add_resource(Device, "/device/")
     app.register_blueprint(auth, url_prefix="/api")
     return app
