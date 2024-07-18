@@ -9,3 +9,4 @@ class AddCellSchema(ma.SQLAlchemySchema):
     longitude = ma.Float()
     latitude = ma.Float()
     userEmail = ma.Email()
+    archive = ma.Boolean()
