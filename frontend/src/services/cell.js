@@ -22,7 +22,11 @@ export const addCell = (cellName, location, longitude, latitude, archive, email)
       location: location,
       longitude: longitude,
       latitude: latitude,
-      archive: archive
+      archive: archive,
+      userEmail: email 
+      // this doesn't a 1 to 1 mapping with models, 
+      // just make sure that the message structure (http request) is the same with the frontend and the backend
+      // by the same, I mean, the both the frontend and the backend agree on the structure (schema)
     })
     .then((res) => res.data)
     .catch((error) => {

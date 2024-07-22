@@ -29,7 +29,7 @@ class Cell(Resource):
         new_cell = CellModel.add_cell_by_user_email(
             cell_name, location, lat, long, archive, userEmail
         )
-        return jsonify(new_cell)
+        return cell_schema.dump(new_cell)
 
     def put(self, cellId):
         json_data = request.json

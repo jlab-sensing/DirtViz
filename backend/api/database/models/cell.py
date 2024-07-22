@@ -19,11 +19,12 @@ class Cell(db.Model):
 
     def __repr__(self):
         return repr(self.name)
-
-    def add_cell_by_user_email(
-        self, name, location, latitude, longitude, archive, userEmail
+    
+    @staticmethod
+    def add_cell_by_user_email(name, location, latitude, longitude, archive, userEmail
     ):
-        user_id = User.get_user(userEmail).id
+        # check for existing cell name -> notify user that cell name already exists
+        user_id = User.get_user_by_email(userEmail).id
         new_cell = Cell(
             name=name,
             location=location,
