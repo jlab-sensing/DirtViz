@@ -26,7 +26,7 @@ class Cell(Resource):
             archive = False
         else:
             archive = cell_data["archive"]
-        new_cell = CellModel.add_cell_by_user_emailcell(
+        new_cell = CellModel.add_cell_by_user_email(
             cell_name, location, lat, long, archive, userEmail
         )
         return jsonify(new_cell)

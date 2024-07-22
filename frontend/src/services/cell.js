@@ -15,7 +15,7 @@ export const getCells = () => {
   return axios.get(`${process.env.PUBLIC_URL}/api/cell/id`).then((res) => res.data);
 };
 
-export const addCell = (cellName, location, longitude, latitude, archive) => {
+export const addCell = (cellName, location, longitude, latitude, archive, email) => {
   return axios
     .post(`${process.env.PUBLIC_URL}/api/cell/`, {
       name: cellName,

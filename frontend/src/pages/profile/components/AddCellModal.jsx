@@ -12,6 +12,12 @@ function AddCellModal() {
   const [lat, setLat] = useState('');
   const archive = false;
   const [response, setResponse] = useState(null);
+  const { user } = useAuth();
+  const email = user.email;
+  // user.email
+  // React context providers
+  // Authcontext in app.jsx
+  // it sets "global states"
   const handleOpen = () => {
     setOpen(true);
     setResponse(null);
@@ -109,7 +115,7 @@ function AddCellModal() {
               </Typography>
               <Button
                 onClick={() => {
-                  addCell(name, location, lat, long, archive).then((res) => setResponse(res));
+                  addCell(name, location, lat, long, archive, email).then((res) => setResponse(res));
                 }}
               >
                 Add Cell
