@@ -1,5 +1,5 @@
 from flask import request
-from flask_restful import Resource, reqparse
+from flask_restful import Resource
 from ..auth.auth import authenticate
 from ..database.models.device import Device
 from ..database.schemas.post_device import PostDeviceSchema
@@ -13,19 +13,18 @@ class Device(Resource):
   method_decorators = [authenticate]
 
   def post(self, user):
-    # {
-    #  "device_name": 
-    #  "device_second_name":
-    # }
+    """Endpoint to return api key for new uploading device"""
     device_data = postDeviceSchema.load(request.json)
     device_name = device_data["name"]
-    
-    # if Device.find_by_name(device_name):
-    #   return {'msg': f"A device with name '{device_name}'
-    #            already exists."}
 
-    # new_device = Device(
-    #   name = device_name,
-    #   user_id = user.id,
-    #     )
+    if Device.find_by_name(device_name):
+      return {'msg': f"A device with name '{device_name}'
+               already exists."}, 400
+
+    new_device = Device(
+      name = device_name,
+      user_id = user.id,
+        )
+    new_device.save()
+    return {'api_key': new_device.api_key}, 200
 
