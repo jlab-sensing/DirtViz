@@ -18,13 +18,12 @@ class Device(Resource):
     device_name = device_data["name"]
 
     if Device.find_by_name(device_name):
-      return {'msg': f"A device with name '{device_name}'
-               already exists."}, 400
+      return {'msg': f"A device with name {device_name} already exists."}, 400
 
     new_device = Device(
       name = device_name,
       user_id = user.id,
         )
     new_device.save()
-    return {'api_key': new_device.api_key}, 200
+    return {'api_key': new_device.api_key}, 201
 

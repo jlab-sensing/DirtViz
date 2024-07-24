@@ -29,7 +29,9 @@ class Cell(Resource):
         new_cell = CellModel.add_cell_by_user_email(
             cell_name, location, lat, long, archive, userEmail
         )
-        return jsonify(new_cell)
+        if new_cell:
+            return {"message": "Successfully added cell"}
+        return jsonify({"message": "Error adding cell"}), 400
 
     def put(self, cellId):
         json_data = request.json

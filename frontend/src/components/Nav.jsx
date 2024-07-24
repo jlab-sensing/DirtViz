@@ -27,6 +27,8 @@ function Nav() {
   const handleCloseProfileMenu = () => {
     setAnchorElProfileMenu(null);
   };
+
+
   useEffect(() => {
     let isMounted = true;
     const controller = new AbortController();
@@ -47,13 +49,7 @@ function Nav() {
       }
     }
     getUserData();
-
-    // Clean up
-    return () => {
-      isMounted = false;
-      controller.abort();
-    };
-  }, [axiosPrivate, setLoggedIn, setUser]);
+  });
 
   return (
     <AppBar position='static' elevation={0} sx={{ bgcolor: 'transparent', pl: '5%', pr: '5%' }}>

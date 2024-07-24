@@ -22,7 +22,8 @@ export const addCell = (cellName, location, longitude, latitude, archive, email)
       location: location,
       longitude: longitude,
       latitude: latitude,
-      archive: archive
+      archive: archive,
+      userEmail: email
     })
     .then((res) => res.data)
     .catch((error) => {

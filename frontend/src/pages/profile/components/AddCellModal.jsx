@@ -3,6 +3,8 @@ import { Modal, Box, Typography, Button, TextField, IconButton } from '@mui/mate
 import CloseIcon from '@mui/icons-material/Close';
 import AddCircleIcon from '@mui/icons-material/AddCircle';
 import { addCell } from '../../../services/cell';
+import useAuth from '../../../auth/hooks/useAuth';
+import {addDevice} from '../../../services/device';
 
 function AddCellModal() {
   const [isOpen, setOpen] = useState(false);
@@ -12,8 +14,14 @@ function AddCellModal() {
   const [lat, setLat] = useState('');
   const archive = false;
   const [response, setResponse] = useState(null);
+  const [apiKey, setApiKey] = useState(null);
   const { user } = useAuth();
-  const email = user.email;
+  if (!user) {
+    return <></> 
+  }
+  // if user is undefined
+  // redirect to home
+
   // user.email
   // React context providers
   // Authcontext in app.jsx
@@ -39,7 +47,7 @@ function AddCellModal() {
         aria-labelledby='modal-modal-title'
         aria-describedby='modal-modal-description'
       >
-        <Box
+      <Box
           sx={{
             position: 'absolute',
             top: '50%',
@@ -115,20 +123,22 @@ function AddCellModal() {
               </Typography>
               <Button
                 onClick={() => {
-                  addCell(name, location, lat, long, archive, email).then((res) => setResponse(res));
-                }}
+                  addCell(name, location, lat, long, archive, user.email).then((res) => {
+                    setResponse(res)
+                    addDevice(name).then((res) => setApiKey(res.api_key))
+                  })}}
               >
                 Add Cell
               </Button>
             </>
           )}
 
-          {response && (
+          {(response && apiKey) && (
             <>
               <IconButton
                 sx={{ position: 'absolute', top: 5, right: 5 }}
                 aria-label='delete'
-                size='small'
+                size='small'ji
                 onClick={handleClose}
               >
                 <CloseIcon fontSize='small' />
@@ -141,6 +151,10 @@ function AddCellModal() {
               <p>
                 Here&apos;,s the endpoint to start uploading teros data, https://dirtviz.jlab.ucsc.edu/api/teros/
                 {response.id}
+              </p>
+              <p>
+                Here&apos;s the API key for your addDevice
+                {apiKey}
               </p>
               <Button
                 onClick={() => {

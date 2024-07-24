@@ -29,7 +29,7 @@ def authenticate(f):
 
     @wraps(f)
     def wrapper(*args, **kwargs):
-        try:
+        # try:
             token = request.headers["Authorization"]
             # remove bearer
 
@@ -43,9 +43,9 @@ def authenticate(f):
                 return abort(500)
             return f(user, *args, **kwargs)
 
-        except Exception as e:
-            print(e, flush=True)
-            return abort(403)
+        # except Exception as e:
+        #     print(e, flush=True)
+        #     return abort(403)
 
     return wrapper
 
